@@ -7,6 +7,7 @@ This document provides visualizations of the theoretical foundations and relatio
 ```mermaid
 graph TB
     subgraph Operational
+        direction LR
         LTS[Labelled Transition Systems]
         SOS[Structural Operational Semantics]
         Trans[Transition Relations]
@@ -14,6 +15,7 @@ graph TB
     end
 
     subgraph Denotational
+        direction LR
         Traces[Trace Sets]
         Failures[Failure Sets]
         Accept[Acceptance Trees]
@@ -21,6 +23,7 @@ graph TB
     end
 
     subgraph Algebraic
+        direction LR
         Laws[Algebraic Laws]
         Axioms[Axiom Systems]
         Terms[Process Terms]
@@ -183,18 +186,24 @@ graph TB
 ```mermaid
 graph LR
     subgraph Operational[Operational]
+        direction TB
         LTS[LTS]
         SOS[SOS Rules]
+        LTS --> SOS
     end
 
     subgraph Denotational[Denotational]
+        direction TB
         Trace[Traces]
         Fail[Failures]
+        Trace --> Fail
     end
 
     subgraph Algebraic[Algebraic]
+        direction TB
         Law[Laws]
         Term[Terms]
+        Law --> Term
     end
 
     Operational --> Denotational --> Algebraic
@@ -205,18 +214,24 @@ graph LR
 ```mermaid
 graph LR
     subgraph Syntax[Syntactic]
+        direction TB
         Format[Rule Format]
         Static[Static Analysis]
+        Format --> Static
     end
 
     subgraph Semantic[Semantic]
+        direction TB
         Congr[Congruence]
         Comp[Compositionality]
+        Congr --> Comp
     end
 
     subgraph Meta[Meta-Theory]
+        direction TB
         Sound[Soundness]
         Complete[Completeness]
+        Sound --> Complete
     end
 
     Syntax --> Semantic --> Meta
