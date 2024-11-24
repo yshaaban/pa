@@ -3,6 +3,7 @@ import { PrefixTerm } from '../../src/core/terms/prefix-term';
 import { ChoiceTerm } from '../../src/core/terms/choice-term';
 import { createDefaultCCSEngine } from '../../src/semantics/sos-engine';
 import { MockProcessTerm } from '../core/prefix-term.test';
+import { Transition } from '../../src/core/lts';
 
 describe('Distributed Database Concurrency Control', () => {
     describe('Transaction Manager', () => {
@@ -23,13 +24,13 @@ describe('Distributed Database Concurrency Control', () => {
 
             // Should have transition for begin
             expect(transitions.size).toBe(1);
-            const firstTransition = Array.from(transitions)[0];
+            const firstTransition = Array.from(transitions)[0] as Transition;
             expect(firstTransition.action).toBe('begin');
 
             // After begin, should have choice between read and write
             const operationTransitions = engine.computeTransitions(operations);
             expect(operationTransitions.size).toBe(2);
-            const actions = Array.from(operationTransitions).map(t => t.action);
+            const actions = Array.from(operationTransitions).map((t: Transition) => t.action);
             expect(actions).toContain('read');
             expect(actions).toContain('write');
         });
@@ -54,7 +55,8 @@ describe('Distributed Database Concurrency Control', () => {
 
             // Should start with prepare phase
             expect(transitions.size).toBe(1);
-            expect(Array.from(transitions)[0].action).toBe('prepare');
+            const firstTransition = Array.from(transitions)[0] as Transition;
+            expect(firstTransition.action).toBe('prepare');
         });
 
         it('should detect liveness issues in problematic implementation', () => {
@@ -73,13 +75,13 @@ describe('Distributed Database Concurrency Control', () => {
 
             // Should have transition for prepare
             expect(transitions.size).toBe(1);
-            const firstTransition = Array.from(transitions)[0];
+            const firstTransition = Array.from(transitions)[0] as Transition;
             expect(firstTransition.action).toBe('prepare');
 
             // After prepare, should have both commit and internal choice paths
             const decisionTransitions = engine.computeTransitions(decision);
             expect(decisionTransitions.size).toBe(2);
-            const actions = Array.from(decisionTransitions).map(t => t.action);
+            const actions = Array.from(decisionTransitions).map((t: Transition) => t.action);
             expect(actions).toContain('all-prepared');
             expect(actions).toContain('tau');
         });
@@ -104,7 +106,8 @@ describe('Distributed Database Concurrency Control', () => {
 
             // Should start with receive prepare
             expect(transitions.size).toBe(1);
-            expect(Array.from(transitions)[0].action).toBe('receive-prepare');
+            const firstTransition = Array.from(transitions)[0] as Transition;
+            expect(firstTransition.action).toBe('receive-prepare');
         });
     });
 });
