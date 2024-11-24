@@ -2,29 +2,29 @@
 
 A TypeScript implementation of process algebra verification tools supporting CCS, CSP, and ACP semantics.
 
-## Architecture
+## System Overview
 
 ```mermaid
 graph TB
-    subgraph Core
+    subgraph Core[Core Components]
         LTS[LTS Core]
         Terms[Process Terms]
         SOS[SOS Engine]
     end
 
-    subgraph Semantics
+    subgraph Semantics[Semantic Models]
         CCS[CCS Model]
         CSP[CSP Model]
         ACP[ACP Model]
     end
 
-    subgraph Verification
+    subgraph Verification[Verification Tools]
         Equiv[Equivalence Checker]
         POR[Partial Order Reduction]
         Symb[Symbolic State Space]
     end
 
-    subgraph Analysis
+    subgraph Analysis[Analysis Tools]
         Bench[Benchmarking]
         Test[Testing]
         Metrics[Metrics Collection]
@@ -33,120 +33,6 @@ graph TB
     Core --> Semantics
     Semantics --> Verification
     Verification --> Analysis
-```
-
-## Process Algebra Concepts
-
-```mermaid
-graph LR
-    subgraph Foundations
-        LTS[Labelled Transition System]
-        Terms[Process Terms]
-        Actions[Actions]
-    end
-
-    subgraph Operators
-        Prefix[Prefix]
-        Choice[Choice]
-        Parallel[Parallel Composition]
-        Hide[Hiding]
-        Restrict[Restriction]
-    end
-
-    subgraph Semantics
-        SOS[Structural Operational Semantics]
-        Bisim[Bisimulation]
-        Trace[Traces]
-        Fail[Failures]
-    end
-
-    Terms --> Operators
-    Actions --> LTS
-    Terms --> LTS
-    LTS --> Semantics
-```
-
-## Verification Pipeline
-
-```mermaid
-graph LR
-    subgraph Input
-        Spec[Specification]
-        Impl[Implementation]
-    end
-
-    subgraph Processing
-        Parse[Parser]
-        Build[LTS Builder]
-        Reduce[State Space Reduction]
-        Check[Equivalence Checking]
-    end
-
-    subgraph Output
-        Result[Verification Result]
-        Counter[Counter Example]
-        Proof[Proof]
-    end
-
-    Spec --> Parse
-    Impl --> Parse
-    Parse --> Build
-    Build --> Reduce
-    Reduce --> Check
-    Check --> Result
-    Result --> Counter
-    Result --> Proof
-```
-
-## Class Hierarchy
-
-```mermaid
-classDiagram
-    class ProcessTerm {
-        <<interface>>
-        +substitute()
-        +derive()
-        +equals()
-    }
-
-    class SOSRule {
-        <<interface>>
-        +canApply()
-        +deriveTransitions()
-    }
-
-    class EquivalenceChecker {
-        <<abstract>>
-        +areEquivalent()
-        +computePartitions()
-    }
-
-    ProcessTerm <|-- PrefixTerm
-    ProcessTerm <|-- ChoiceTerm
-    ProcessTerm <|-- ParallelTerm
-    ProcessTerm <|-- RecursiveTerm
-
-    EquivalenceChecker <|-- BisimulationChecker
-    EquivalenceChecker <|-- TracesChecker
-    EquivalenceChecker <|-- FailuresChecker
-```
-
-## Behavioral Equivalences Hierarchy
-
-```mermaid
-graph BT
-    Traces[Traces Equivalence]
-    Testing[Testing Equivalence]
-    Failures[Failures Equivalence]
-    WeakBisim[Weak Bisimulation]
-    StrongBisim[Strong Bisimulation]
-    BranchBisim[Branching Bisimulation]
-
-    Traces --> Testing
-    Testing --> Failures
-    Failures --> WeakBisim
-    WeakBisim --> StrongBisim
-    WeakBisim --> BranchBisim
 ```
 
 ## Features
@@ -159,20 +45,29 @@ graph BT
 
 ## Implementation Status
 
-- [x] Core LTS infrastructure
-- [x] Basic process terms
-- [x] SOS engine
-- [x] CCS semantics
-- [ ] CSP semantics
-- [ ] ACP semantics
-- [x] Strong bisimulation
-- [x] Weak bisimulation
-- [ ] Testing equivalence
-- [ ] Failures equivalence
-- [x] Partial order reduction
-- [ ] Symbolic state space
-- [x] Basic testing framework
-- [ ] Performance benchmarks
+```mermaid
+graph LR
+    subgraph Complete[Completed]
+        Core[Core LTS]
+        Terms[Process Terms]
+        SOS[SOS Engine]
+        CCS[CCS Semantics]
+        Bisim[Bisimulation]
+        POR[Partial Order]
+        Test[Testing]
+    end
+
+    subgraph Progress[In Progress]
+        CSP[CSP Semantics]
+        ACP[ACP Semantics]
+        Failures[Failures Equiv]
+        Testing[Testing Equiv]
+        Symbolic[Symbolic State]
+        Bench[Benchmarks]
+    end
+
+    Complete --> Progress
+```
 
 ## Development
 
@@ -209,9 +104,10 @@ npm run benchmark
 
 Detailed documentation is available in the following files:
 
-- [Introduction to Process Algebras](../intro-to-pa.md)
-- [Implementation Guide](../pas-implementation-guide.md)
-- [Project Plan](../dafny-like-process-algebra-project-plan.md)
+- [Theory and Semantic Models](docs/theory.md)
+- [Architecture Details](docs/architecture.md)
+- [Examples and Use Cases](docs/examples.md)
+- [Implementation Guide](docs/index.md)
 
 ## Contributing
 
