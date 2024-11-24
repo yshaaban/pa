@@ -6,30 +6,29 @@ This document provides visualizations of the theoretical foundations and relatio
 
 ```mermaid
 graph TB
-    LTS[Labelled Transition Systems]
-    SOS[Structural Operational Semantics]
-    Trans[Transition Relations]
-    Traces[Trace Sets]
-    Failures[Failure Sets]
-    Accept[Acceptance Trees]
-    Laws[Algebraic Laws]
-    Axioms[Axiom Systems]
-    Terms[Process Terms]
-
     subgraph Operational
-        LTS --> SOS
-        SOS --> Trans
+        LTS[Labelled Transition Systems]
+        SOS[Structural Operational Semantics]
+        Trans[Transition Relations]
+        LTS --> SOS --> Trans
     end
 
     subgraph Denotational
-        Traces --> Failures
-        Failures --> Accept
+        Traces[Trace Sets]
+        Failures[Failure Sets]
+        Accept[Acceptance Trees]
+        Traces --> Failures --> Accept
     end
 
     subgraph Algebraic
-        Laws --> Axioms
-        Axioms --> Terms
+        Laws[Algebraic Laws]
+        Axioms[Axiom Systems]
+        Terms[Process Terms]
+        Laws --> Axioms --> Terms
     end
+
+    Operational -.-> Denotational
+    Denotational -.-> Algebraic
 ```
 
 ## Behavioral Equivalences Hierarchy
@@ -58,168 +57,197 @@ graph BT
 
 ```mermaid
 graph TB
-    Prefix[Action Prefix]
-    Choice[Choice]
-    Stop[Stop]
-    Skip[Skip]
-    Inter[Interleaving]
-    Sync[Synchronization]
-    Left[Left Merge]
-    Hide[Hiding]
-    Restrict[Restriction]
-
-    subgraph Basic
-        Prefix
-        Choice
-        Stop
-        Skip
+    subgraph Basic[Basic Operators]
+        direction LR
+        Prefix[Action Prefix]
+        Choice[Choice]
+        Stop[Stop]
+        Skip[Skip]
+        Prefix --> Choice
+        Choice --> Stop
+        Choice --> Skip
     end
 
-    subgraph Parallel
-        Inter
-        Sync
-        Left
+    subgraph Parallel[Parallel Operators]
+        direction LR
+        Inter[Interleaving]
+        Sync[Synchronization]
+        Left[Left Merge]
+        Inter --> Sync
+        Sync --> Left
     end
 
-    subgraph Abstraction
-        Hide
-        Restrict
+    subgraph Abstraction[Abstraction Operators]
+        direction LR
+        Hide[Hiding]
+        Restrict[Restriction]
+        Hide --> Restrict
     end
+
+    Basic --> Parallel
+    Parallel --> Abstraction
 ```
 
 ## Semantic Rules
 
 ```mermaid
 graph TB
-    Axioms[Axioms]
-    Induct[Inductive Rules]
-    Side[Side Conditions]
-    GSOS[GSOS Format]
-    TyFT[Tyft Format]
-    Congr[Congruence]
-    Complete[Completeness]
-
-    subgraph Rules
-        Axioms --> Induct
-        Induct --> Side
+    subgraph Rules[Rule Structure]
+        direction LR
+        Axioms[Axioms]
+        Induct[Inductive Rules]
+        Side[Side Conditions]
+        Axioms --> Induct --> Side
     end
 
-    subgraph Properties
-        GSOS --> Congr
-        TyFT --> Complete
+    subgraph Formats[Rule Formats]
+        direction LR
+        GSOS[GSOS Format]
+        TyFT[Tyft Format]
+        Path[Path Format]
+        GSOS --> TyFT --> Path
     end
+
+    subgraph Props[Properties]
+        direction LR
+        Congr[Congruence]
+        Conserv[Conservative Extension]
+        Complete[Completeness]
+        Congr --> Conserv --> Complete
+    end
+
+    Rules --> Formats --> Props
 ```
 
 ## Process Algebra Models
 
 ```mermaid
-graph TB
-    subgraph CCS
+graph LR
+    subgraph CCS[CCS]
+        direction TB
         CCS_Sync[Binary Sync]
         CCS_Choice[Mixed Choice]
+        CCS_Sync --> CCS_Choice
     end
 
-    subgraph CSP
+    subgraph CSP[CSP]
+        direction TB
         CSP_Multi[Multiway Sync]
         CSP_Choice[External Choice]
+        CSP_Multi --> CSP_Choice
     end
 
-    subgraph ACP
+    subgraph ACP[ACP]
+        direction TB
         ACP_Comm[Communication]
         ACP_Merge[Merge]
+        ACP_Comm --> ACP_Merge
     end
 
-    CCS --> CSP
-    CSP --> ACP
+    CCS --> CSP --> ACP
 ```
 
 ## Verification Methods
 
 ```mermaid
 graph TB
-    Reach[Reachability]
-    Safety[Safety]
-    Live[Liveness]
-    Bisim[Bisimulation]
-    Trace[Trace]
-    Axiom[Axioms]
-
-    subgraph Model
-        Reach --> Safety
-        Safety --> Live
+    subgraph Model[Model Checking]
+        direction LR
+        Reach[Reachability]
+        Safety[Safety]
+        Live[Liveness]
+        Reach --> Safety --> Live
     end
 
-    subgraph Equivalence
-        Bisim
-        Trace
+    subgraph Equiv[Equivalence Checking]
+        direction LR
+        Bisim[Bisimulation]
+        Trace[Trace]
+        Fail[Failure]
+        Bisim --> Trace --> Fail
     end
 
-    subgraph Proof
-        Axiom
+    subgraph Proof[Proof Methods]
+        direction LR
+        Axiom[Axioms]
+        Ind[Induction]
+        Coind[Coinduction]
+        Axiom --> Ind --> Coind
     end
+
+    Model --> Equiv --> Proof
 ```
 
 ## Semantic Models
 
 ```mermaid
-graph TB
-    LTS[LTS]
-    SOS[SOS Rules]
-    Trace[Traces]
-    Law[Laws]
-    Term[Terms]
+graph LR
+    subgraph Operational[Operational]
+        LTS[LTS]
+        SOS[SOS Rules]
+    end
 
-    LTS --> Trace
-    SOS --> Law
-    Law --> Term
-    Trace --> Term
+    subgraph Denotational[Denotational]
+        Trace[Traces]
+        Fail[Failures]
+    end
+
+    subgraph Algebraic[Algebraic]
+        Law[Laws]
+        Term[Terms]
+    end
+
+    Operational --> Denotational --> Algebraic
 ```
 
 ## Theoretical Properties
 
 ```mermaid
-graph TB
-    Format[Rule Format]
-    Static[Static Analysis]
-    Congr[Congruence]
-    Comp[Compositionality]
-    Sound[Soundness]
-    Complete[Completeness]
+graph LR
+    subgraph Syntax[Syntactic]
+        Format[Rule Format]
+        Static[Static Analysis]
+    end
 
-    Format --> Congr
-    Static --> Comp
-    Congr --> Sound
-    Comp --> Complete
+    subgraph Semantic[Semantic]
+        Congr[Congruence]
+        Comp[Compositionality]
+    end
+
+    subgraph Meta[Meta-Theory]
+        Sound[Soundness]
+        Complete[Completeness]
+    end
+
+    Syntax --> Semantic --> Meta
 ```
 
 ## Verification Techniques
 
 ```mermaid
 graph LR
-    Enum[State Enumeration]
-    Part[Partition Refinement]
-    POR[Partial Order]
-    Symb[Symbolic]
-    Safety[Safety]
-    Live[Liveness]
-
-    subgraph Basic
-        Enum
-        Part
+    subgraph Basic[Basic]
+        direction TB
+        Enum[State Enumeration]
+        Part[Partition Refinement]
+        Enum --> Part
     end
 
-    subgraph Advanced
-        POR
-        Symb
+    subgraph Advanced[Advanced]
+        direction TB
+        POR[Partial Order]
+        Symb[Symbolic]
+        POR --> Symb
     end
 
-    subgraph Properties
-        Safety
-        Live
+    subgraph Properties[Properties]
+        direction TB
+        Safety[Safety]
+        Live[Liveness]
+        Safety --> Live
     end
 
-    Basic --> Advanced
-    Advanced --> Properties
+    Basic --> Advanced --> Properties
 ```
 
 ## Key Insights
