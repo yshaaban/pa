@@ -1,205 +1,222 @@
 # Process Algebra Verifier
 
-A comprehensive TypeScript implementation of a process algebra verification system, supporting multiple semantic models and verification techniques for analyzing concurrent and distributed systems.
+A TypeScript implementation of process algebra verification tools supporting CCS, CSP, and ACP semantics.
+
+## Architecture
+
+```mermaid
+graph TB
+    subgraph Core
+        LTS[LTS Core]
+        Terms[Process Terms]
+        SOS[SOS Engine]
+    end
+
+    subgraph Semantics
+        CCS[CCS Model]
+        CSP[CSP Model]
+        ACP[ACP Model]
+    end
+
+    subgraph Verification
+        Equiv[Equivalence Checker]
+        POR[Partial Order Reduction]
+        Symb[Symbolic State Space]
+    end
+
+    subgraph Analysis
+        Bench[Benchmarking]
+        Test[Testing]
+        Metrics[Metrics Collection]
+    end
+
+    Core --> Semantics
+    Semantics --> Verification
+    Verification --> Analysis
+```
+
+## Process Algebra Concepts
+
+```mermaid
+graph LR
+    subgraph Foundations
+        LTS[Labelled Transition System]
+        Terms[Process Terms]
+        Actions[Actions]
+    end
+
+    subgraph Operators
+        Prefix[Prefix]
+        Choice[Choice]
+        Parallel[Parallel Composition]
+        Hide[Hiding]
+        Restrict[Restriction]
+    end
+
+    subgraph Semantics
+        SOS[Structural Operational Semantics]
+        Bisim[Bisimulation]
+        Trace[Traces]
+        Fail[Failures]
+    end
+
+    Terms --> Operators
+    Actions --> LTS
+    Terms --> LTS
+    LTS --> Semantics
+```
+
+## Verification Pipeline
+
+```mermaid
+graph LR
+    subgraph Input
+        Spec[Specification]
+        Impl[Implementation]
+    end
+
+    subgraph Processing
+        Parse[Parser]
+        Build[LTS Builder]
+        Reduce[State Space Reduction]
+        Check[Equivalence Checking]
+    end
+
+    subgraph Output
+        Result[Verification Result]
+        Counter[Counter Example]
+        Proof[Proof]
+    end
+
+    Spec --> Parse
+    Impl --> Parse
+    Parse --> Build
+    Build --> Reduce
+    Reduce --> Check
+    Check --> Result
+    Result --> Counter
+    Result --> Proof
+```
+
+## Class Hierarchy
+
+```mermaid
+classDiagram
+    class ProcessTerm {
+        <<interface>>
+        +substitute()
+        +derive()
+        +equals()
+    }
+
+    class SOSRule {
+        <<interface>>
+        +canApply()
+        +deriveTransitions()
+    }
+
+    class EquivalenceChecker {
+        <<abstract>>
+        +areEquivalent()
+        +computePartitions()
+    }
+
+    ProcessTerm <|-- PrefixTerm
+    ProcessTerm <|-- ChoiceTerm
+    ProcessTerm <|-- ParallelTerm
+    ProcessTerm <|-- RecursiveTerm
+
+    EquivalenceChecker <|-- BisimulationChecker
+    EquivalenceChecker <|-- TracesChecker
+    EquivalenceChecker <|-- FailuresChecker
+```
+
+## Behavioral Equivalences Hierarchy
+
+```mermaid
+graph BT
+    Traces[Traces Equivalence]
+    Testing[Testing Equivalence]
+    Failures[Failures Equivalence]
+    WeakBisim[Weak Bisimulation]
+    StrongBisim[Strong Bisimulation]
+    BranchBisim[Branching Bisimulation]
+
+    Traces --> Testing
+    Testing --> Failures
+    Failures --> WeakBisim
+    WeakBisim --> StrongBisim
+    WeakBisim --> BranchBisim
+```
 
 ## Features
 
-### Core Capabilities
+- Support for CCS, CSP, and ACP semantic models
+- Multiple behavioral equivalence checking algorithms
+- State space reduction techniques
+- Symbolic state space representation
+- Comprehensive testing and benchmarking tools
 
-- Labelled Transition System (LTS) infrastructure
-- Multiple process term representations (prefix, choice, parallel, recursive)
-- Structural Operational Semantics (SOS) engine
-- Advanced equivalence checking techniques
-- Tau-reachable transitions support for weak bisimulation
+## Implementation Status
 
-### Supported Equivalence Relations
-
-- Trace Equivalence: Compares visible sequences of actions
-- Bisimulation Equivalence: Both strong and weak variants
-- Testing Equivalence: May and must testing
-- Failures Equivalence: For CSP-style refinement checking
-
-### Semantic Models
-
-- CCS (Calculus of Communicating Systems)
-- CSP (Communicating Sequential Processes)
-- ACP (Algebra of Communicating Processes)
-
-## Installation
-
-```bash
-git clone https://github.com/yourusername/process-algebra-verifier.git
-cd process-algebra-verifier
-npm install
-```
-
-## Usage
-
-### Basic Process Term Creation
-
-```typescript
-import { PrefixTerm, ChoiceTerm, StopTerm } from "./core/process-term";
-
-// Create a simple prefix term: a.b.STOP
-const prefixTerm = new PrefixTerm("a", new PrefixTerm("b", StopTerm.get()));
-
-// Create a choice term: (a.STOP + b.STOP)
-const choiceTerm = new ChoiceTerm(
-  new PrefixTerm("a", StopTerm.get()),
-  new PrefixTerm("b", StopTerm.get())
-);
-```
-
-### Equivalence Checking
-
-```typescript
-import {
-  EquivalenceChecker,
-  EquivalenceType,
-} from "./verification/equivalence-checker";
-import { LTSBuilder } from "./core/lts-builder";
-
-// Create process terms
-const term1 = new PrefixTerm("a", StopTerm.get());
-const term2 = new PrefixTerm("a", StopTerm.get());
-
-// Create LTS and checker
-const lts = LTSBuilder.fromProcessTerm(term1);
-const checker = new EquivalenceChecker(lts);
-
-// Check equivalence
-const areEquivalent = checker.checkEquivalence(
-  term1,
-  term2,
-  EquivalenceType.BISIMULATION
-);
-```
-
-### Weak Bisimulation with Tau Transitions
-
-```typescript
-import { BisimulationChecker } from "./verification/bisimulation";
-
-const checker = new BisimulationChecker();
-
-// Check weak bisimulation (handles tau transitions)
-const areWeaklyBisimilar = checker.checkWeakBisimulation(term1, term2);
-```
-
-### Complete Example: Simple Protocol
-
-Here's a simple example verifying a communication protocol:
-
-```typescript
-import { PrefixTerm, ParallelTerm, StopTerm } from "./core/process-term";
-
-// Create sender: send.receive_ack.STOP
-const sender = new PrefixTerm(
-  "send",
-  new PrefixTerm("receive_ack", StopTerm.get())
-);
-
-// Create receiver: receive.send_ack.STOP
-const receiver = new PrefixTerm(
-  "receive",
-  new PrefixTerm("send_ack", StopTerm.get())
-);
-
-// Compose the protocol
-const protocol = new ParallelTerm(sender, receiver);
-
-// Verify protocol correctness
-const checker = new BisimulationChecker();
-const isCorrect = checker.checkWeakBisimulation(protocol, expectedBehavior);
-```
-
-See the `examples` directory for more comprehensive examples:
-
-- `simple-protocol.ts`: Basic communication protocol verification
-- `distributed-db.ts`: Complex distributed database system verification
-
-## Advanced Usage
-
-### Verifying Complex Systems
-
-For complex systems like distributed databases or communication protocols:
-
-1. Model each component as a ProcessTerm
-2. Compose components using parallel composition
-3. Define expected behavior
-4. Verify using appropriate equivalence relation
-
-Example:
-
-```typescript
-// Model components
-const coordinator = createCoordinator();
-const participant1 = createParticipant();
-const participant2 = createParticipant();
-
-// Compose system
-const system = new ParallelTerm(
-  coordinator,
-  new ParallelTerm(participant1, participant2)
-);
-
-// Verify properties
-const checker = new BisimulationChecker();
-const isCorrect = checker.checkWeakBisimulation(system, specification);
-```
-
-### Custom Properties
-
-You can verify custom properties by:
-
-1. Defining the property as a ProcessTerm
-2. Using appropriate equivalence relation
-3. Checking refinement or equivalence
-
-```typescript
-const property = new PrefixTerm(
-  "action",
-  new ChoiceTerm(
-    new PrefixTerm("success", StopTerm.get()),
-    new PrefixTerm("retry", StopTerm.get())
-  )
-);
-
-const satisfiesProperty = checker.checkEquivalence(
-  system,
-  property,
-  EquivalenceType.FAILURES
-);
-```
+- [x] Core LTS infrastructure
+- [x] Basic process terms
+- [x] SOS engine
+- [x] CCS semantics
+- [ ] CSP semantics
+- [ ] ACP semantics
+- [x] Strong bisimulation
+- [x] Weak bisimulation
+- [ ] Testing equivalence
+- [ ] Failures equivalence
+- [x] Partial order reduction
+- [ ] Symbolic state space
+- [x] Basic testing framework
+- [ ] Performance benchmarks
 
 ## Development
 
-### Running Tests
+### Prerequisites
+
+- Node.js >= 14
+- TypeScript >= 4.5
+
+### Setup
 
 ```bash
-npm test
+npm install
 ```
 
-### Linting
-
-```bash
-npm run lint
-```
-
-### Building
+### Build
 
 ```bash
 npm run build
 ```
 
+### Test
+
+```bash
+npm test
+```
+
+### Benchmarks
+
+```bash
+npm run benchmark
+```
+
+## Documentation
+
+Detailed documentation is available in the following files:
+
+- [Introduction to Process Algebras](../intro-to-pa.md)
+- [Implementation Guide](../pas-implementation-guide.md)
+- [Project Plan](../dafny-like-process-algebra-project-plan.md)
+
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines and code of conduct.
+Please read our contributing guidelines before submitting pull requests.
 
 ## License
 
-[Specify your license]
-
-## Acknowledgements
-
-Inspired by foundational work in process algebras and concurrent system verification.
+This project is licensed under the MIT License - see the LICENSE file for details.
