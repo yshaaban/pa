@@ -1,6 +1,9 @@
 // CSP (Communicating Sequential Processes) Specific SOS Rules
 
-import { ProcessTerm, PrefixTerm, ChoiceTerm, ParallelTerm } from '../core/process-term';
+import { ProcessTerm } from '../core/process-term';
+import { PrefixTerm } from '../core/terms/prefix-term';
+import { ChoiceTerm } from '../core/terms/choice-term';
+import { ParallelTerm } from '../core/terms/parallel-term';
 import { Transition, Action } from '../core/lts';
 import { SOSRule } from './sos-engine';
 
@@ -99,7 +102,7 @@ export class CSPSynchronizationRule implements SOSRule {
                 if (this.canSynchronize(leftTrans.action, rightTrans.action)) {
                     transitions.add(new Transition(
                         'initial',
-                        this.synchronizedAction(leftTrans.action, rightTrans.action),
+                        this.synchronizedAction(),
                         'synchronized-action'
                     ));
                 }
@@ -116,7 +119,7 @@ export class CSPSynchronizationRule implements SOSRule {
     }
 
     // Create a synchronized action (could be a tau or a combined action)
-    private synchronizedAction(action1: Action, action2: Action): Action {
+    private synchronizedAction(): Action {
         // For now, return a tau (silent) action to represent synchronization
         return 'tau';
     }

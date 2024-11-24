@@ -1,6 +1,9 @@
 // ACP (Algebra of Communicating Processes) Specific SOS Rules
 
-import { ProcessTerm, PrefixTerm, ChoiceTerm, ParallelTerm } from '../core/process-term';
+import { ProcessTerm } from '../core/process-term';
+import { PrefixTerm } from '../core/terms/prefix-term';
+import { ChoiceTerm } from '../core/terms/choice-term';
+import { ParallelTerm } from '../core/terms/parallel-term';
 import { Transition, Action } from '../core/lts';
 import { SOSRule } from './sos-engine';
 
@@ -49,7 +52,7 @@ export class ACPChoiceMergeRule implements SOSRule {
 
         rightTransitions.forEach(rightTrans => {
             // Check if right transition should be added based on merge priority
-            if (this.shouldAddRightTransition(leftTransitions, rightTrans)) {
+            if (this.shouldAddRightTransition()) {
                 mergedTransitions.add(new Transition(
                     'initial',
                     rightTrans.action,
@@ -62,7 +65,7 @@ export class ACPChoiceMergeRule implements SOSRule {
     }
 
     // Determine if a right transition should be added based on ACP merge semantics
-    private shouldAddRightTransition(leftTransitions: Set<Transition>, rightTrans: Transition): boolean {
+    private shouldAddRightTransition(): boolean {
         // Placeholder for merge priority logic
         // In ACP, this could involve:
         // 1. Checking action compatibility

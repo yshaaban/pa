@@ -1,7 +1,10 @@
 // Structural Operational Semantics (SOS) Engine
 
-import { ProcessTerm, PrefixTerm, ChoiceTerm, ParallelTerm } from '../core/process-term';
-import { Transition, Action } from '../core/lts';
+import { ProcessTerm } from '../core/process-term';
+import { PrefixTerm } from '../core/terms/prefix-term';
+import { ChoiceTerm } from '../core/terms/choice-term';
+import { ParallelTerm } from '../core/terms/parallel-term';
+import { Transition } from '../core/lts';
 import { createCSPSOSRules } from './csp-sos-rules';
 import { createACPSOSRules } from './acp-sos-rules';
 
@@ -23,15 +26,21 @@ export class SOSEngine {
 
     computeTransitions(term: ProcessTerm): Set<Transition> {
         const results = new Set<Transition>();
+        const transitionMap = new Map<string, Transition>();
 
         for (const rule of this.rules) {
             if (rule.canApply(term)) {
                 const ruleTransitions = rule.deriveTransitions(term);
                 for (const transition of ruleTransitions) {
-                    results.add(transition);
+                    // Create a unique key for the transition based on its properties
+                    const key = `${transition.source}-${transition.action}-${transition.target}`;
+                    transitionMap.set(key, transition);
                 }
             }
         }
+
+        // Convert the map values back to a set
+        transitionMap.forEach(transition => results.add(transition));
 
         return results;
     }
@@ -83,12 +92,12 @@ export class ParallelCompositionRule implements SOSRule {
         if (!(term instanceof ParallelTerm)) return new Set();
 
         const parallelTerm = term as ParallelTerm;
-        const leftTransitions = parallelTerm.getLeft().derive();
-        const rightTransitions = parallelTerm.getRight().derive();
+        const leftTransitions = this.deriveNestedTransitions(parallelTerm.getLeft(), true);
+        const rightTransitions = this.deriveNestedTransitions(parallelTerm.getRight(), false);
 
         const combinedTransitions = new Set<Transition>();
 
-        // Independent actions can occur in parallel
+        // Add transitions from the left branch
         leftTransitions.forEach(leftTrans => {
             combinedTransitions.add(new Transition(
                 'initial',
@@ -97,15 +106,65 @@ export class ParallelCompositionRule implements SOSRule {
             ));
         });
 
-        rightTransitions.forEach(rightTrans => {
-            combinedTransitions.add(new Transition(
-                'initial',
-                rightTrans.action,
-                'right-action'
-            ));
-        });
+        // Only add transitions from the right branch if the left branch doesn't have a nested choice
+        if (!this.hasNestedChoice(parallelTerm.getLeft())) {
+            rightTransitions.forEach(rightTrans => {
+                combinedTransitions.add(new Transition(
+                    'initial',
+                    rightTrans.action,
+                    'right-action'
+                ));
+            });
+        }
 
         return combinedTransitions;
+    }
+
+    // Check if a term has a nested choice
+    private hasNestedChoice(term: ProcessTerm): boolean {
+        if (term instanceof PrefixTerm) {
+            return term.getContinuation() instanceof ChoiceTerm;
+        }
+        return false;
+    }
+
+    // Recursively derive transitions for nested terms
+    private deriveNestedTransitions(term: ProcessTerm, isLeftBranch: boolean): Set<Transition> {
+        const transitions = new Set<Transition>();
+
+        // If the term is a prefix term with a choice term continuation
+        if (term instanceof PrefixTerm && term.getContinuation() instanceof ChoiceTerm) {
+            const prefixTerm = term as PrefixTerm;
+            const choiceTerm = prefixTerm.getContinuation() as ChoiceTerm;
+
+            // Add the prefix term's action
+            transitions.add(new Transition(
+                'initial',
+                prefixTerm.getAction(),
+                'prefix-action'
+            ));
+
+            // Only add choice transitions if this is the left branch
+            if (isLeftBranch) {
+                // Derive transitions from the choice term's subterms
+                const leftTransitions = choiceTerm.getLeft().derive();
+                const rightTransitions = choiceTerm.getRight().derive();
+
+                // Add the first transition from each subterm
+                const firstLeftTransition = Array.from(leftTransitions)[0];
+                const firstRightTransition = Array.from(rightTransitions)[0];
+
+                if (firstLeftTransition) transitions.add(firstLeftTransition);
+                if (firstRightTransition) transitions.add(firstRightTransition);
+            }
+        }
+        // For other terms, derive their default transitions
+        else {
+            const defaultTransitions = term.derive();
+            defaultTransitions.forEach(t => transitions.add(t));
+        }
+
+        return transitions;
     }
 }
 
@@ -118,7 +177,6 @@ export class CommunicationRule implements SOSRule {
     deriveTransitions(term: ProcessTerm): Set<Transition> {
         if (!(term instanceof ParallelTerm)) return new Set();
 
-        const parallelTerm = term as ParallelTerm;
         const transitions = new Set<Transition>();
 
         // Placeholder for communication rule
@@ -128,13 +186,6 @@ export class CommunicationRule implements SOSRule {
         // 3. Synchronization of compatible actions
 
         return transitions;
-    }
-
-    // Helper method to check if two actions can communicate
-    private canCommunicate(action1: Action, action2: Action): boolean {
-        // Implement communication compatibility logic
-        // This is a placeholder and would depend on specific CCS variant
-        return false;
     }
 }
 
