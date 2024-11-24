@@ -12,3 +12,4 @@ export { PrefixTerm } from './terms/prefix-term';
 export { ChoiceTerm } from './terms/choice-term';
 export { ParallelTerm } from './terms/parallel-term';
 export { RecursiveTerm } from './terms/recursive-term';
+export { StopTerm } from './terms/stop-term';
