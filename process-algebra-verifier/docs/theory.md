@@ -6,42 +6,39 @@ This document provides visualizations of the theoretical foundations and relatio
 
 ```mermaid
 graph TB
-    subgraph Operational[Operational Semantics]
-        LTS[Labelled Transition Systems]
-        SOS[Structural Operational Semantics]
-        Trans[Transition Relations]
+    LTS[Labelled Transition Systems]
+    SOS[Structural Operational Semantics]
+    Trans[Transition Relations]
+    Traces[Trace Sets]
+    Failures[Failure Sets]
+    Accept[Acceptance Trees]
+    Laws[Algebraic Laws]
+    Axioms[Axiom Systems]
+    Terms[Process Terms]
+
+    subgraph Operational
+        LTS --> SOS
+        SOS --> Trans
     end
 
-    subgraph Denotational[Denotational Semantics]
-        Traces[Trace Sets]
-        Failures[Failure Sets]
-        Accept[Acceptance Trees]
+    subgraph Denotational
+        Traces --> Failures
+        Failures --> Accept
     end
 
-    subgraph Algebraic[Algebraic Semantics]
-        Laws[Algebraic Laws]
-        Axioms[Axiom Systems]
-        Terms[Process Terms]
+    subgraph Algebraic
+        Laws --> Axioms
+        Axioms --> Terms
     end
-
-    LTS --> SOS
-    SOS --> Trans
-
-    Traces --> Failures
-    Failures --> Accept
-
-    Laws --> Axioms
-    Axioms --> Terms
 ```
 
-## Behavioral Equivalences Lattice
+## Behavioral Equivalences Hierarchy
 
 ```mermaid
 graph BT
     Trace[Trace Equivalence]
     Testing[Testing Equivalence]
     Failure[Failure Equivalence]
-    ReadyTrace[Ready Trace Equivalence]
     Ready[Ready Equivalence]
     Simulation[Simulation Equivalence]
     WeakBi[Weak Bisimulation]
@@ -50,202 +47,185 @@ graph BT
 
     Trace --> Testing
     Testing --> Failure
-    Failure --> ReadyTrace
-    ReadyTrace --> Ready
+    Failure --> Ready
     Ready --> Simulation
     Simulation --> WeakBi
     WeakBi --> StrongBi
     WeakBi --> Branch
 ```
 
-## Process Operators and Their Properties
+## Process Operators
 
 ```mermaid
 graph TB
-    subgraph Basic[Basic Operators]
-        Prefix[Action Prefix]
-        Choice[Choice]
-        Stop[Stop]
-        Skip[Skip]
+    Prefix[Action Prefix]
+    Choice[Choice]
+    Stop[Stop]
+    Skip[Skip]
+    Inter[Interleaving]
+    Sync[Synchronization]
+    Left[Left Merge]
+    Hide[Hiding]
+    Restrict[Restriction]
+
+    subgraph Basic
+        Prefix
+        Choice
+        Stop
+        Skip
     end
 
-    subgraph Parallel[Parallel Operators]
-        Inter[Interleaving]
-        Sync[Synchronization]
-        Left[Left Merge]
-        Comm[Communication Merge]
+    subgraph Parallel
+        Inter
+        Sync
+        Left
     end
 
-    subgraph Abstract[Abstraction Operators]
-        Hide[Hiding]
-        Restrict[Restriction]
-        Rename[Renaming]
+    subgraph Abstraction
+        Hide
+        Restrict
     end
-
-    Basic --> Parallel
-    Parallel --> Abstract
 ```
 
-## Semantic Rules Structure
+## Semantic Rules
 
 ```mermaid
 graph TB
-    subgraph Rules[SOS Rules]
-        Axioms[Axioms]
-        Induct[Inductive Rules]
-        Side[Side Conditions]
+    Axioms[Axioms]
+    Induct[Inductive Rules]
+    Side[Side Conditions]
+    GSOS[GSOS Format]
+    TyFT[Tyft Format]
+    Congr[Congruence]
+    Complete[Completeness]
+
+    subgraph Rules
+        Axioms --> Induct
+        Induct --> Side
     end
 
-    subgraph Format[Rule Formats]
-        GSOS[GSOS Format]
-        TyFT[Tyft/Tyxt Format]
-        Path[Path Format]
+    subgraph Properties
+        GSOS --> Congr
+        TyFT --> Complete
     end
-
-    subgraph Props[Properties]
-        Congr[Congruence]
-        Conserv[Conservative Extension]
-        Complete[Completeness]
-    end
-
-    Rules --> Format
-    Format --> Props
 ```
 
-## Process Algebra Models Comparison
+## Process Algebra Models
 
 ```mermaid
-graph LR
-    subgraph CCS[CCS Features]
-        CCS_Sync[Binary Synchronization]
+graph TB
+    subgraph CCS
+        CCS_Sync[Binary Sync]
         CCS_Choice[Mixed Choice]
-        CCS_Rec[Recursion]
     end
 
-    subgraph CSP[CSP Features]
+    subgraph CSP
         CSP_Multi[Multiway Sync]
-        CSP_Choice[External/Internal Choice]
-        CSP_Ref[Refusal Sets]
+        CSP_Choice[External Choice]
     end
 
-    subgraph ACP[ACP Features]
-        ACP_Comm[Communication Function]
-        ACP_Merge[Merge Operators]
-        ACP_Axioms[Equational Theory]
+    subgraph ACP
+        ACP_Comm[Communication]
+        ACP_Merge[Merge]
     end
 
-    CCS --> CSP: Influences
-    CSP --> ACP: Influences
+    CCS --> CSP
+    CSP --> ACP
 ```
 
 ## Verification Methods
 
 ```mermaid
 graph TB
-    subgraph Model[Model Checking]
-        Reach[Reachability]
-        Safety[Safety Properties]
-        Live[Liveness Properties]
+    Reach[Reachability]
+    Safety[Safety]
+    Live[Liveness]
+    Bisim[Bisimulation]
+    Trace[Trace]
+    Axiom[Axioms]
+
+    subgraph Model
+        Reach --> Safety
+        Safety --> Live
     end
 
-    subgraph Equiv[Equivalence Checking]
-        Bisim[Bisimulation]
-        Trace[Trace Inclusion]
-        Fail[Failure Refinement]
+    subgraph Equivalence
+        Bisim
+        Trace
     end
 
-    subgraph Proof[Proof Methods]
-        Axiom[Axiom Application]
-        Ind[Induction]
-        Coind[Coinduction]
+    subgraph Proof
+        Axiom
     end
-
-    Model --> Equiv
-    Equiv --> Proof
 ```
 
-## Semantic Models Relationships
+## Semantic Models
 
 ```mermaid
 graph TB
-    subgraph Operational[Operational]
-        LTS[LTS]
-        SOS[SOS Rules]
-    end
+    LTS[LTS]
+    SOS[SOS Rules]
+    Trace[Traces]
+    Law[Laws]
+    Term[Terms]
 
-    subgraph Denotational[Denotational]
-        Trace[Trace Sets]
-        Fail[Failure Sets]
-    end
-
-    subgraph Algebraic[Algebraic]
-        Law[Laws]
-        Term[Terms]
-    end
-
-    LTS --> Trace: Abstracts to
-    SOS --> Law: Induces
-    Trace --> Term: Represents
-    Fail --> Term: Represents
-    Law --> LTS: Models
+    LTS --> Trace
+    SOS --> Law
+    Law --> Term
+    Trace --> Term
 ```
 
 ## Theoretical Properties
 
 ```mermaid
 graph TB
-    subgraph Syntax[Syntactic Properties]
-        Format[Rule Format]
-        Static[Static Analysis]
-    end
+    Format[Rule Format]
+    Static[Static Analysis]
+    Congr[Congruence]
+    Comp[Compositionality]
+    Sound[Soundness]
+    Complete[Completeness]
 
-    subgraph Semantic[Semantic Properties]
-        Congr[Congruence]
-        Comp[Compositionality]
-    end
-
-    subgraph Meta[Meta-Theory]
-        Sound[Soundness]
-        Complete[Completeness]
-    end
-
-    Format --> Congr: Ensures
-    Static --> Comp: Verifies
-    Congr --> Sound: Contributes to
-    Comp --> Complete: Supports
+    Format --> Congr
+    Static --> Comp
+    Congr --> Sound
+    Comp --> Complete
 ```
 
-## Verification Techniques Relationships
+## Verification Techniques
 
 ```mermaid
 graph LR
-    subgraph Basic[Basic Techniques]
-        Enum[State Enumeration]
-        Part[Partition Refinement]
+    Enum[State Enumeration]
+    Part[Partition Refinement]
+    POR[Partial Order]
+    Symb[Symbolic]
+    Safety[Safety]
+    Live[Liveness]
+
+    subgraph Basic
+        Enum
+        Part
     end
 
-    subgraph Advanced[Advanced Techniques]
-        POR[Partial Order Reduction]
-        Symb[Symbolic Methods]
-        Comp[Compositional Methods]
+    subgraph Advanced
+        POR
+        Symb
     end
 
-    subgraph Properties[Property Classes]
-        Safety[Safety]
-        Live[Liveness]
-        Fair[Fairness]
+    subgraph Properties
+        Safety
+        Live
     end
 
-    Basic --> Advanced: Enhances
-    Advanced --> Properties: Verifies
+    Basic --> Advanced
+    Advanced --> Properties
 ```
-
-These diagrams provide a comprehensive visualization of the theoretical foundations underlying process algebras and their relationships. They serve as a reference for understanding the mathematical concepts and their practical implementation in the verification system.
 
 ## Key Insights
 
 1. The semantic domains (operational, denotational, algebraic) provide different but complementary views of process behavior.
-2. Behavioral equivalences form a lattice structure with increasing discriminative power.
+2. Behavioral equivalences form a hierarchy with increasing discriminative power.
 3. Process operators can be classified based on their role in system description.
 4. SOS rules and their formats determine important theoretical properties.
 5. Different process algebra models (CCS, CSP, ACP) emphasize different aspects of concurrent system description.
